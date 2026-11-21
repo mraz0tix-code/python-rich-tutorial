@@ -1,0 +1,936 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>python-rich Install Guide</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<script>
+  // Dark by default; follows the system unless the visitor picked a theme.
+  (function () {
+    var saved = null;
+    try { saved = localStorage.getItem('theme'); } catch (e) {}
+    if (saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-theme', saved);
+  })();
+</script>
+<style>
+  /* Layout: one quiet column. Two-line name, big statement, six system cards, command tables, virtual environment steps, a check, facts. */
+  :root {
+    color-scheme: dark;
+    --bg: #000000;
+    --surface: #0d0d0f;
+    --text: #ffffff;
+    --muted: #9b9ba5;
+    --line: #232328;
+    --accent: #2563eb;
+    --accent-ink: #60a5fa;
+    --accent-on: #ffffff;
+    --inv-bg: #ffffff;
+    --inv-fg: #000000;
+    --glass: rgba(13, 13, 15, 0.85);
+    --hover-line: rgba(96, 165, 250, 0.45);
+    --shadow: rgba(37, 99, 235, 0.28);
+    --radius: 14px;
+    --ease: cubic-bezier(.2, .7, .2, 1);
+    --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      color-scheme: light;
+      --bg: #f9f9fb;
+      --surface: #ffffff;
+      --text: #000000;
+      --muted: #5c5c66;
+      --line: #e5e5ea;
+      --accent: #2563eb;
+      --accent-ink: #2563eb;
+      --accent-on: #ffffff;
+      --inv-bg: #000000;
+      --inv-fg: #ffffff;
+      --glass: rgba(255, 255, 255, 0.85);
+      --hover-line: rgba(37, 99, 235, 0.35);
+      --shadow: rgba(0, 0, 0, 0.18);
+    }
+  }
+
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --bg: #f9f9fb;
+    --surface: #ffffff;
+    --text: #000000;
+    --muted: #5c5c66;
+    --line: #e5e5ea;
+    --accent: #2563eb;
+    --accent-ink: #2563eb;
+    --accent-on: #ffffff;
+    --inv-bg: #000000;
+    --inv-fg: #ffffff;
+    --glass: rgba(255, 255, 255, 0.85);
+    --hover-line: rgba(37, 99, 235, 0.35);
+    --shadow: rgba(0, 0, 0, 0.18);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    padding-left: max(24px, env(safe-area-inset-left, 0px));
+    padding-right: max(24px, env(safe-area-inset-right, 0px));
+  }
+
+  /* Controls: theme + language */
+  .controls {
+    position: fixed;
+    top: calc(16px + env(safe-area-inset-top, 0px));
+    right: max(16px, env(safe-area-inset-right, 0px));
+    z-index: 10;
+    display: flex;
+    gap: 8px;
+  }
+
+  .lang, .theme {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 64px;
+    padding: 3px;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+  }
+
+  .lang:focus-visible, .theme:focus-visible {
+    outline: 2px solid var(--accent-ink);
+    outline-offset: 3px;
+  }
+
+  .lang-thumb, .theme-thumb {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    left: 3px;
+    width: calc(50% - 3px);
+    background: var(--inv-bg);
+    border-radius: 999px;
+    transition: transform 0.4s var(--ease), background-color 0.45s ease;
+  }
+
+  .theme[aria-checked="true"] .theme-thumb,
+  .lang[data-current="ru"] .lang-thumb { transform: translateX(100%); }
+
+  .lang-opt, .theme-opt {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    transition: color 0.35s ease;
+  }
+
+  .lang-opt { padding: 7px 0; line-height: 1; }
+  .lang-opt.is-active { color: var(--inv-fg); }
+
+  .theme-opt svg { width: 15px; height: 15px; }
+
+  /* Sun sits left, moon right. The icon under the thumb takes the thumb's contrast color. */
+  .theme[aria-checked="true"] .sun { color: var(--muted); }
+  .theme[aria-checked="true"] .moon { color: var(--inv-fg); }
+  .theme[aria-checked="false"] .sun { color: var(--inv-fg); }
+  .theme[aria-checked="false"] .moon { color: var(--muted); }
+
+  html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after {
+    transition: background-color 0.45s ease, color 0.45s ease, border-color 0.45s ease,
+                box-shadow 0.45s ease, transform 0.4s var(--ease), opacity 0.22s ease !important;
+  }
+
+  [data-i18n], [data-lines], [data-opt] { transition: opacity 0.22s ease; }
+  .is-fading { opacity: 0; }
+
+  /* Hero */
+  .hero {
+    padding: clamp(104px, 17vw, 176px) 0 clamp(56px, 10vw, 96px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .hero h1 {
+    font-size: clamp(2.2rem, 9vw, 5.5rem);
+    font-weight: 800;
+    letter-spacing: -0.055em;
+    line-height: 1;
+  }
+
+  .hero h1 span { display: block; }
+  .hero h1 .second { color: var(--muted); }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 28px;
+    padding: 7px 16px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+  }
+
+  .tag::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  /* Sections */
+  section {
+    padding: clamp(48px, 8vw, 80px) 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  h2 {
+    margin-bottom: 24px;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .about { padding: clamp(64px, 11vw, 128px) 0; }
+
+  .about p {
+    font-size: clamp(1.9rem, 6vw, 4.25rem);
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -0.04em;
+    overflow-wrap: break-word;
+    text-wrap: balance;
+  }
+
+  /* Menu cards */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    padding: 28px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    transition: transform 0.6s var(--ease), box-shadow 0.6s var(--ease), border-color 0.6s ease;
+  }
+
+  .card h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+
+  .card p { color: var(--muted); font-size: 0.97rem; }
+
+  .card .stack {
+    margin-top: auto;
+    padding-top: 14px;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    overflow-wrap: anywhere;
+  }
+
+  .card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    margin-top: 6px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+  }
+
+  .card-meta .count {
+    font-size: 0.88rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent-ink);
+    text-decoration: none;
+  }
+
+  .arrow {
+    display: inline-block;
+    transition: transform 0.35s var(--ease), color 0.35s ease;
+  }
+
+  /* Rows: what's inside */
+  .rows { list-style: none; border-top: 1px solid var(--line); }
+
+  .rows li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .rows-label { flex: none; font-size: 0.95rem; color: var(--muted); }
+
+  .rows-value {
+    min-width: 0;
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    text-align: right;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    transition: color 0.35s ease;
+  }
+
+  /* Command table */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+
+  th, td {
+    padding: 16px 20px;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--line);
+  }
+
+  tr:last-child th, tr:last-child td { border-bottom: none; }
+
+  thead th {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  tbody th { font-weight: 500; color: var(--muted); }
+
+  td.cmd {
+    font-family: var(--mono);
+    font-size: 0.88rem;
+    white-space: nowrap;
+  }
+
+  td.cmd.wrap { white-space: normal; overflow-wrap: anywhere; }
+
+  td { font-variant-numeric: tabular-nums; }
+
+  .label { margin-bottom: 8px; font-size: 0.85rem; font-weight: 600; color: var(--muted); }
+
+  /* Main menu + run */
+  .run-text { max-width: 65ch; color: var(--muted); font-size: 0.97rem; }
+  .run-text + .run-text { margin-top: 12px; }
+
+  pre {
+    margin: 0 0 20px;
+    padding: 22px 24px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+
+  pre .prompt { color: var(--muted); user-select: none; }
+
+  /* CTA */
+  .cta { border-bottom: none; }
+
+  .btns { display: flex; flex-direction: column; gap: 16px; }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    width: 100%;
+    padding: 30px 34px;
+    font-size: clamp(1.2rem, 3.2vw, 1.65rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: var(--accent-on);
+    background: var(--accent);
+    border-radius: var(--radius);
+    text-decoration: none;
+    transition: background 0.45s ease, color 0.45s ease;
+  }
+
+  .btn:focus-visible { outline: 2px solid var(--text); outline-offset: 4px; }
+
+  .card-link:focus-visible, .rows-value:focus-visible, .foot-link:focus-visible {
+    outline: 2px solid var(--accent-ink);
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
+
+  footer {
+    padding-bottom: 48px;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  footer .container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 16px;
+  }
+
+  .foot-link { color: var(--muted); text-decoration: none; transition: color 0.35s ease; }
+
+  @media (hover: hover) {
+    .lang:hover, .theme:hover { border-color: var(--muted); }
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: var(--hover-line);
+      box-shadow: 0 20px 40px -24px var(--shadow);
+    }
+    .card-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+    .card-link:hover .arrow { transform: translate(2px, -2px); }
+    a.rows-value:hover { color: var(--accent-ink); }
+    a.rows-value:hover .arrow { color: var(--accent-ink); transform: translate(2px, -2px); }
+    .foot-link:hover { color: var(--accent-ink); }
+    .btn:hover { background: var(--inv-bg); color: var(--inv-fg); }
+    .btn:hover .arrow { transform: translateX(8px); }
+  }
+
+  @media (max-width: 720px) {
+    .container {
+      padding-left: max(20px, env(safe-area-inset-left, 0px));
+      padding-right: max(20px, env(safe-area-inset-right, 0px));
+    }
+    .controls { top: calc(12px + env(safe-area-inset-top, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); gap: 6px; }
+    .grid { grid-template-columns: 1fr; }
+    .card { padding: 22px; }
+    .rows li { flex-direction: column; align-items: flex-start; gap: 4px; padding: 16px 0; }
+    .rows-value { text-align: left; }
+    th, td { padding: 14px 16px; }
+    pre { padding: 18px; }
+    pre.menu { font-size: 0.78rem; }
+    .btn { padding: 24px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="controls">
+  <button class="theme" id="theme-toggle" type="button" role="switch" aria-checked="true" aria-label="Dark theme">
+    <span class="theme-thumb" aria-hidden="true"></span>
+    <span class="theme-opt sun" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+    </span>
+    <span class="theme-opt moon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </span>
+  </button>
+
+  <button class="lang" id="lang-toggle" type="button" aria-label="Переключить на русский" data-current="en">
+    <span class="lang-thumb" aria-hidden="true"></span>
+    <span class="lang-opt is-active" data-lang="en">EN</span>
+    <span class="lang-opt" data-lang="ru">RU</span>
+  </button>
+</div>
+
+<header class="hero">
+  <div class="container">
+    <h1><span>python-rich</span><span class="second" data-i18n="hero_second">Install guide</span></h1>
+    <span class="tag">Python · Linux · macOS · Windows</span>
+  </div>
+</header>
+
+<main>
+  <section class="about">
+    <div class="container">
+      <h2 data-i18n="about_title">About</h2>
+      <p data-i18n="about_text">Rich prints color, tables, progress bars and Markdown in the terminal. Here is how to install it on Linux, macOS and Windows.</p>
+    </div>
+  </section>
+
+  <section class="systems">
+    <div class="container">
+      <h2 data-i18n="systems_title">Systems</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>Arch Linux</h3>
+          <p data-i18n="c_arch">Rich is in the official extra repository as python-rich. The same command works on EndeavourOS and CachyOS.</p>
+          <p class="stack">sudo pacman -S python-rich</p>
+          <div class="card-meta">
+            <p class="count">python-rich</p>
+            <a class="card-link" href="https://archlinux.org/packages/extra/any/python-rich/" target="_blank" rel="noopener noreferrer">
+              <span data-i18n="pkg_link">Package page</span>
+              <span class="arrow" aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3 data-i18n="h_deb">Debian and Ubuntu</h3>
+          <p data-i18n="c_deb">Rich is packaged as python3-rich. The same command works on Linux Mint and other Debian-based systems.</p>
+          <p class="stack">sudo apt install python3-rich</p>
+          <div class="card-meta">
+            <p class="count">python3-rich</p>
+            <a class="card-link" href="https://packages.debian.org/python3-rich" target="_blank" rel="noopener noreferrer">
+              <span data-i18n="pkg_link">Package page</span>
+              <span class="arrow" aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>Fedora</h3>
+          <p data-i18n="c_fed">Rich is packaged as python3-rich, built from the source package python-rich.</p>
+          <p class="stack">sudo dnf install python3-rich</p>
+          <div class="card-meta">
+            <p class="count">python3-rich</p>
+            <a class="card-link" href="https://packages.fedoraproject.org/pkgs/python-rich/python3-rich/" target="_blank" rel="noopener noreferrer">
+              <span data-i18n="pkg_link">Package page</span>
+              <span class="arrow" aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3 data-i18n="h_other">Other Linux</h3>
+          <p data-i18n="c_other">If your distribution has no package, or the package is old, use pip inside a virtual environment.</p>
+          <p class="stack">python3 -m pip install rich</p>
+          <div class="card-meta">
+            <p class="count">rich</p>
+            <a class="card-link" href="https://pypi.org/project/rich/" target="_blank" rel="noopener noreferrer">
+              <span data-i18n="pypi_link">rich on PyPI</span>
+              <span class="arrow" aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>macOS</h3>
+          <p data-i18n="c_mac">Use Python from python.org or Homebrew, then run pip inside a virtual environment.</p>
+          <p class="stack">python3 -m pip install rich</p>
+          <div class="card-meta">
+            <p class="count">rich</p>
+            <a class="card-link" href="https://pypi.org/project/rich/" target="_blank" rel="noopener noreferrer">
+              <span data-i18n="pypi_link">rich on PyPI</span>
+              <span class="arrow" aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>Windows</h3>
+          <p data-i18n="c_win">Install Python from python.org or the Microsoft Store, then use the py launcher.</p>
+          <p class="stack">py -m pip install rich</p>
+          <div class="card-meta">
+            <p class="count">rich</p>
+            <a class="card-link" href="https://pypi.org/project/rich/" target="_blank" rel="noopener noreferrer">
+              <span data-i18n="pypi_link">rich on PyPI</span>
+              <span class="arrow" aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="commands">
+    <div class="container">
+      <h2 data-i18n="cmd_title">Commands</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col" data-i18n="col_system">System</th>
+              <th scope="col" data-i18n="col_install">Install</th>
+              <th scope="col" data-i18n="col_remove">Remove</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Arch Linux</th>
+              <td class="cmd wrap">sudo pacman -S python-rich</td>
+              <td class="cmd wrap">sudo pacman -Rns python-rich</td>
+            </tr>
+            <tr>
+              <th scope="row" data-i18n="h_deb">Debian and Ubuntu</th>
+              <td class="cmd wrap">sudo apt install python3-rich</td>
+              <td class="cmd wrap">sudo apt remove python3-rich</td>
+            </tr>
+            <tr>
+              <th scope="row">Fedora</th>
+              <td class="cmd wrap">sudo dnf install python3-rich</td>
+              <td class="cmd wrap">sudo dnf remove python3-rich</td>
+            </tr>
+            <tr>
+              <th scope="row" data-i18n="row_venv">Linux and macOS, pip</th>
+              <td class="cmd wrap">python3 -m pip install rich</td>
+              <td class="cmd wrap">python3 -m pip uninstall rich</td>
+            </tr>
+            <tr>
+              <th scope="row">Windows, pip</th>
+              <td class="cmd wrap">py -m pip install rich</td>
+              <td class="cmd wrap">py -m pip uninstall rich</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="venv">
+    <div class="container">
+      <h2 data-i18n="venv_title">Virtual environment</h2>
+      <p class="label" data-i18n="label_unix">Linux and macOS</p>
+      <pre><code><span class="prompt">$ </span>python3 -m venv .venv
+<span class="prompt">$ </span>source .venv/bin/activate
+<span class="prompt">$ </span>pip install rich</code></pre>
+      <p class="label" data-i18n="label_win">Windows</p>
+      <pre><code><span class="prompt">&gt; </span>py -m venv .venv
+<span class="prompt">&gt; </span>.venv\Scripts\python.exe -m pip install rich
+<span class="prompt">&gt; </span>.venv\Scripts\python.exe your_script.py</code></pre>
+      <p class="run-text" data-i18n="venv_text">Arch, Debian 12 and newer, Ubuntu 23.04 and newer and Homebrew mark their Python as externally managed (PEP 668). A plain pip install there fails with externally-managed-environment. Create a virtual environment for your project and install rich inside it.</p>
+      <p class="run-text" data-i18n="venv_note">Packages from pacman, apt and dnf live in the system Python. A virtual environment does not see them unless you create it with --system-site-packages.</p>
+    </div>
+  </section>
+
+  <section class="tools">
+    <div class="container">
+      <h2 data-i18n="tools_title">Python package managers</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col" data-i18n="col_tool">Tool</th>
+              <th scope="col" data-i18n="col_command">Command</th>
+              <th scope="col" data-i18n="col_when">Use it</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">pip</th>
+              <td class="cmd wrap">python3 -m pip install rich</td>
+              <td data-i18n="when_pip">In an activated virtual environment</td>
+            </tr>
+            <tr>
+              <th scope="row">uv</th>
+              <td class="cmd wrap">uv add rich</td>
+              <td data-i18n="when_uv">In a project managed by uv</td>
+            </tr>
+            <tr>
+              <th scope="row">Poetry</th>
+              <td class="cmd wrap">poetry add rich</td>
+              <td data-i18n="when_poetry">In a Poetry project</td>
+            </tr>
+            <tr>
+              <th scope="row">conda</th>
+              <td class="cmd wrap">conda install -c conda-forge rich</td>
+              <td data-i18n="when_conda">In a conda environment</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="check">
+    <div class="container">
+      <h2 data-i18n="check_title">Check the install</h2>
+      <pre><code><span class="prompt">$ </span>python3 -m rich</code></pre>
+      <p class="run-text" data-i18n="check_text">This prints a demo of colors, tables and syntax highlighting. On Windows use py -m rich. Inside a virtual environment, run it with that environment's Python.</p>
+      <pre><code>from rich import print
+print("[bold green]Rich works[/bold green]")</code></pre>
+    </div>
+  </section>
+
+  <section class="inside">
+    <div class="container">
+      <h2 data-i18n="facts_title">Details</h2>
+      <ul class="rows">
+        <li>
+          <span class="rows-label" data-i18n="row_version">Version on PyPI</span>
+          <span class="rows-value">15.0.0 · 2026-04-12</span>
+        </li>
+        <li>
+          <span class="rows-label">Python</span>
+          <span class="rows-value" data-i18n="v_python">3.9 or newer</span>
+        </li>
+        <li>
+          <span class="rows-label" data-i18n="row_license">License</span>
+          <span class="rows-value">MIT</span>
+        </li>
+        <li>
+          <span class="rows-label" data-i18n="row_source">Source</span>
+          <a class="rows-value" href="https://github.com/Textualize/rich" target="_blank" rel="noopener noreferrer">github.com/Textualize/rich<span class="arrow" aria-hidden="true"> ↗</span></a>
+        </li>
+      </ul>
+      <p class="run-text" data-i18n="facts_note">Distribution packages can be older than the version on PyPI. Check with pacman -Si python-rich, apt show python3-rich or dnf info python3-rich.</p>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="container">
+      <div class="btns">
+        <a class="btn" href="https://rich.readthedocs.io/" target="_blank" rel="noopener noreferrer">
+          <span data-i18n="cta_docs">Rich documentation</span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </a>
+        <a class="btn" href="https://pypi.org/project/rich/" target="_blank" rel="noopener noreferrer">
+          <span data-i18n="cta_pypi">Rich on PyPI</span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <span>© mraz0tix</span>
+    <a class="foot-link" href="https://mraz0tix-code.github.io/" target="_blank" rel="noopener noreferrer" data-i18n="foot_back">Portfolio</a>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  var dict = {
+    ru: {
+      hero_second: 'Установка',
+      about_title: 'О проекте',
+      about_text: 'Rich выводит в терминал цвет, таблицы, индикаторы выполнения и Markdown. Здесь описано, как поставить его на Linux, macOS и Windows.',
+      systems_title: 'Системы',
+      h_deb: 'Debian и Ubuntu',
+      h_other: 'Другой Linux',
+      c_arch: 'Rich есть в официальном репозитории extra под именем python-rich. Та же команда подходит для EndeavourOS и CachyOS.',
+      c_deb: 'Rich упакован как python3-rich. Та же команда подходит для Linux Mint и других систем на основе Debian.',
+      c_fed: 'Rich упакован как python3-rich и собирается из исходного пакета python-rich.',
+      c_other: 'Если в вашем дистрибутиве нет пакета или он старый, используйте pip в виртуальном окружении.',
+      c_mac: 'Поставьте Python с python.org или через Homebrew, затем запускайте pip в виртуальном окружении.',
+      c_win: 'Поставьте Python с python.org или из Microsoft Store и пользуйтесь лаунчером py.',
+      pkg_link: 'Страница пакета',
+      pypi_link: 'rich на PyPI',
+      cmd_title: 'Команды',
+      col_system: 'Система',
+      col_install: 'Установка',
+      col_remove: 'Удаление',
+      row_venv: 'Linux и macOS, pip',
+      venv_title: 'Виртуальное окружение',
+      label_unix: 'Linux и macOS',
+      label_win: 'Windows',
+      venv_text: 'Arch, Debian 12 и новее, Ubuntu 23.04 и новее и Homebrew помечают свой Python как управляемый извне (PEP 668). Обычный pip install там завершается ошибкой externally-managed-environment. Создайте виртуальное окружение для проекта и ставьте rich в него.',
+      venv_note: 'Пакеты из pacman, apt и dnf лежат в системном Python. Виртуальное окружение их не видит, если не создать его с флагом --system-site-packages.',
+      tools_title: 'Менеджеры пакетов Python',
+      col_tool: 'Инструмент',
+      col_command: 'Команда',
+      col_when: 'Когда использовать',
+      when_pip: 'В активированном виртуальном окружении',
+      when_uv: 'В проекте под управлением uv',
+      when_poetry: 'В проекте на Poetry',
+      when_conda: 'В окружении conda',
+      check_title: 'Проверка установки',
+      check_text: 'Команда печатает демонстрацию цветов, таблиц и подсветки синтаксиса. В Windows используйте py -m rich. В виртуальном окружении запускайте её Python-ом этого окружения.',
+      facts_title: 'Подробности',
+      row_version: 'Версия на PyPI',
+      v_python: '3.9 или новее',
+      row_license: 'Лицензия',
+      row_source: 'Исходный код',
+      facts_note: 'Пакеты дистрибутивов могут быть старше версии на PyPI. Проверьте командой pacman -Si python-rich, apt show python3-rich или dnf info python3-rich.',
+      cta_docs: 'Документация Rich',
+      cta_pypi: 'Rich на PyPI',
+      foot_back: 'Портфолио',
+      theme_label: 'Тёмная тема'
+    },
+    en: {
+      hero_second: 'Install guide',
+      about_title: 'About',
+      about_text: 'Rich prints color, tables, progress bars and Markdown in the terminal. Here is how to install it on Linux, macOS and Windows.',
+      systems_title: 'Systems',
+      h_deb: 'Debian and Ubuntu',
+      h_other: 'Other Linux',
+      c_arch: 'Rich is in the official extra repository as python-rich. The same command works on EndeavourOS and CachyOS.',
+      c_deb: 'Rich is packaged as python3-rich. The same command works on Linux Mint and other Debian-based systems.',
+      c_fed: 'Rich is packaged as python3-rich, built from the source package python-rich.',
+      c_other: 'If your distribution has no package, or the package is old, use pip inside a virtual environment.',
+      c_mac: 'Use Python from python.org or Homebrew, then run pip inside a virtual environment.',
+      c_win: 'Install Python from python.org or the Microsoft Store, then use the py launcher.',
+      pkg_link: 'Package page',
+      pypi_link: 'rich on PyPI',
+      cmd_title: 'Commands',
+      col_system: 'System',
+      col_install: 'Install',
+      col_remove: 'Remove',
+      row_venv: 'Linux and macOS, pip',
+      venv_title: 'Virtual environment',
+      label_unix: 'Linux and macOS',
+      label_win: 'Windows',
+      venv_text: 'Arch, Debian 12 and newer, Ubuntu 23.04 and newer and Homebrew mark their Python as externally managed (PEP 668). A plain pip install there fails with externally-managed-environment. Create a virtual environment for your project and install rich inside it.',
+      venv_note: 'Packages from pacman, apt and dnf live in the system Python. A virtual environment does not see them unless you create it with --system-site-packages.',
+      tools_title: 'Python package managers',
+      col_tool: 'Tool',
+      col_command: 'Command',
+      col_when: 'Use it',
+      when_pip: 'In an activated virtual environment',
+      when_uv: 'In a project managed by uv',
+      when_poetry: 'In a Poetry project',
+      when_conda: 'In a conda environment',
+      check_title: 'Check the install',
+      check_text: "This prints a demo of colors, tables and syntax highlighting. On Windows use py -m rich. Inside a virtual environment, run it with that environment's Python.",
+      facts_title: 'Details',
+      row_version: 'Version on PyPI',
+      v_python: '3.9 or newer',
+      row_license: 'License',
+      row_source: 'Source',
+      facts_note: 'Distribution packages can be older than the version on PyPI. Check with pacman -Si python-rich, apt show python3-rich or dnf info python3-rich.',
+      cta_docs: 'Rich documentation',
+      cta_pypi: 'Rich on PyPI',
+      foot_back: 'Portfolio',
+      theme_label: 'Dark theme'
+    }
+  };
+
+  var root = document.documentElement;
+  var toggle = document.getElementById('lang-toggle');
+  var options = toggle.querySelectorAll('[data-lang]');
+  var themeBtn = document.getElementById('theme-toggle');
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var lightQuery = window.matchMedia('(prefers-color-scheme: light)');
+  var current = 'en';
+  var timer = null;
+  var themeTimer = null;
+
+  function ruLines(n) {
+    var d = n % 10, dd = n % 100;
+    if (d === 1 && dd !== 11) return 'строка';
+    if (d >= 2 && d <= 4 && (dd < 12 || dd > 14)) return 'строки';
+    return 'строк';
+  }
+
+  function renderLines(lang) {
+    document.querySelectorAll('[data-lines]').forEach(function (el) {
+      var n = parseInt(el.getAttribute('data-lines'), 10);
+      var short = el.hasAttribute('data-short');
+      if (lang === 'en') {
+        el.textContent = (short ? '' : 'Project code: ') + n + (n === 1 ? ' line' : ' lines');
+      } else {
+        el.textContent = (short ? '' : 'Код проекта: ') + n + ' ' + ruLines(n);
+      }
+    });
+  }
+
+  function render(lang) {
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      var text = dict[lang][el.getAttribute('data-i18n')];
+      if (text) el.textContent = text;
+    });
+    renderLines(lang);
+    themeBtn.setAttribute('aria-label', dict[lang].theme_label);
+    root.lang = lang;
+  }
+
+  function markActive(lang) {
+    toggle.setAttribute('data-current', lang);
+    options.forEach(function (o) {
+      o.classList.toggle('is-active', o.getAttribute('data-lang') === lang);
+    });
+    toggle.setAttribute('aria-label', lang === 'ru' ? 'Switch to English' : 'Переключить на русский');
+  }
+
+  function setLang(lang) {
+    if (lang === current) return;
+    current = lang;
+    markActive(lang);
+
+    var nodes = document.querySelectorAll('[data-i18n], [data-lines]');
+    nodes.forEach(function (n) { n.classList.add('is-fading'); });
+
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      render(lang);
+      nodes.forEach(function (n) { n.classList.remove('is-fading'); });
+    }, reduceMotion ? 0 : 230);
+  }
+
+  function isDark() {
+    var t = root.getAttribute('data-theme');
+    if (t === 'dark') return true;
+    if (t === 'light') return false;
+    return !lightQuery.matches;
+  }
+
+  function syncTheme() {
+    themeBtn.setAttribute('aria-checked', isDark() ? 'true' : 'false');
+  }
+
+  function setTheme(theme) {
+    if (!reduceMotion) {
+      root.classList.add('theme-anim');
+      clearTimeout(themeTimer);
+      themeTimer = setTimeout(function () { root.classList.remove('theme-anim'); }, 500);
+    }
+    root.setAttribute('data-theme', theme);
+    syncTheme();
+    try { localStorage.setItem('theme', theme); } catch (e) {}
+  }
+
+  markActive('en');
+  render('en');
+  syncTheme();
+
+  toggle.addEventListener('click', function () {
+    setLang(current === 'ru' ? 'en' : 'ru');
+  });
+
+  themeBtn.addEventListener('click', function () {
+    setTheme(isDark() ? 'light' : 'dark');
+  });
+
+  if (lightQuery.addEventListener) lightQuery.addEventListener('change', syncTheme);
+})();
+</script>
+
+</body></html>
